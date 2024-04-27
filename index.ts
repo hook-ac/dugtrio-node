@@ -50,11 +50,6 @@ export class Dugtrio {
     const server = net.createServer((socket) => {
       console.log("Dugtrio Connected");
       this.connection = socket;
-      socket.on("data", (data) => {
-        try {
-          this.windowData = JSON.parse(data.toString("utf-8").trim());
-        } catch (error) {}
-      });
       socket.on("end", () => {
         this.connection = null;
         console.log("Dugtrio disconnected");
@@ -71,9 +66,39 @@ export class Dugtrio {
     server.listen(PIPE_PATH, () => {
       console.log(`Dugtrio sender is ready!`);
     });
+
+    // RECV PIPE
+    const PIPE_NAME_OUT = "discord_ipc_out";
+    const PIPE_PATH_OUT = `\\\\.\\pipe\\${PIPE_NAME_OUT}`;
+
+    const server_out = net.createServer((socket) => {
+      console.log("Dugtrio RECV Connected");
+      socket.on("data", (data) => {
+        try {
+          this.windowData = JSON.parse(data.toString("utf-8").trim());
+        } catch (error) {}
+      });
+      socket.on("end", () => {
+        console.log("Dugtrio receiver disconnected");
+      });
+      socket.on("error", (err: any) => {
+        if (err.code === "EPIPE") {
+          console.error("Write failed, client disconnected.");
+        } else {
+          console.error("Socket error:", err);
+        }
+      });
+    });
+
+    server_out.listen(PIPE_PATH_OUT, () => {
+      console.log(`Dugtrio receiver is ready!`);
+    });
   }
 
   public static getCursorPosition(): Vector2 {
+    if (!this.windowData) {
+      return { x: 0, y: 0 };
+    }
     return {
       x: this.windowData.mousePosition[0],
       y: this.windowData.mousePosition[1],
@@ -81,6 +106,9 @@ export class Dugtrio {
   }
 
   public static getWindowSize(): Vector2 {
+    if (!this.windowData) {
+      return { x: 0, y: 0 };
+    }
     return {
       x: this.windowData.windowSize[0],
       y: this.windowData.windowSize[1],
@@ -88,6 +116,9 @@ export class Dugtrio {
   }
 
   public static isMouseDown(button: number): boolean {
+    if (!this.windowData) {
+      return false;
+    }
     return this.windowData.mouseDown[button];
   }
 

@@ -127,7 +127,7 @@ fn read_pipe_messages(text_value: Arc<Mutex<String>>) {
     }
 }
 fn write_pipe_messages(text_value: Arc<Mutex<String>>) {
-    let pipe_path = r"\\.\pipe\discord_ipc";
+    let pipe_path = r"\\.\pipe\discord_ipc_out";
 
     loop {
         // Attempt to open the pipe
