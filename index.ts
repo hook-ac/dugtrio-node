@@ -6,6 +6,7 @@ import {
   Payload,
   RectCommand,
   RoundingCommand,
+  TextCommand,
   ThicknessCommand,
 } from "./src/drawlist";
 import { Vector2 } from "./src/math";
@@ -28,6 +29,9 @@ export class DrawingContext {
   }
   static rounding(payload: Omit<RoundingCommand, "type">) {
     Dugtrio.currentFrame.commands.push({ ...payload, type: "rounding" });
+  }
+  static text(payload: Omit<TextCommand, "type">) {
+    Dugtrio.currentFrame.commands.push({ ...payload, type: "text" });
   }
 }
 

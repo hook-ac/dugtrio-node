@@ -10,7 +10,8 @@ export type Command =
   | ThicknessCommand
   | RoundingCommand
   | ColorCommand
-  | LineCommand;
+  | LineCommand
+  | TextCommand;
 
 export interface GenericCommand {}
 
@@ -19,6 +20,12 @@ export interface CircleCommand extends GenericCommand {
   position: Vector2;
   radius: number;
   fill: boolean;
+}
+
+export interface TextCommand extends GenericCommand {
+  type: "text";
+  position: Vector2;
+  text: string;
 }
 
 export interface RectCommand extends GenericCommand {

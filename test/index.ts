@@ -16,6 +16,10 @@ box.draw = (self) => {
   } else {
     DrawingContext.color({ red: 255, blue: 0, alpha: 255, green: 0 });
   }
+  DrawingContext.text({
+    position: self.position,
+    text: "hello",
+  });
 
   DrawingContext.rect({
     position: self.position,

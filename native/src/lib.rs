@@ -194,6 +194,9 @@ fn draw_commands(text: &str, drawlist: &mut imgui::DrawListMut) {
             Some("circle") => {
                 draw_circle(command, drawlist, thickness, color);
             }
+            Some("text") => {
+                draw_text(command, drawlist, color);
+            }
             Some("line") => {
                 draw_line(command, drawlist, thickness, color);
             }
@@ -270,6 +273,19 @@ fn draw_line(command: &Value, drawlist: &mut imgui::DrawListMut, thickness: f32,
         )
         .thickness(thickness)
         .build();
+}
+
+fn draw_text(command: &Value, drawlist: &mut imgui::DrawListMut, color: [f32; 4]) {
+    let position = command["position"].as_object().unwrap();
+
+    drawlist.add_text(
+        [
+            position["x"].as_f64().unwrap() as f32,
+            position["y"].as_f64().unwrap() as f32,
+        ],
+        imgui::ImColor32::from(color),
+        command["text"].as_str().unwrap(),
+    )
 }
 
 fn draw_cursor(ui: &mut imgui::Ui, image_id: Option<TextureId>, image: &RgbaImage) {
