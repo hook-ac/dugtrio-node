@@ -1,0 +1,19 @@
+[package]
+name = "overlazer"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "discordoverlay"
+
+[dependencies]
+busrt = { version = "0.4.10", features = ["rpc", "ipc"] }
+hudhook = "0.6.5"
+image = "0.24.8"
+imgui = "0.11"
+serde_json = "1.0.116"
+tokio = "1.37.0"
+tracing-subscriber = "0.3.18"
+zeromq = "0.3.5"
