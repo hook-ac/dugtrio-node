@@ -11,6 +11,7 @@ export class Interactable extends EventEmitter {
   private interactables: Interactable[] = [];
   private plugIns: ((self: Interactable) => void)[] = [];
 
+  parent: Interactable | null = null;
   properties: Record<string, any> = {};
 
   draw: (self: Interactable) => void = () => {};
@@ -19,6 +20,7 @@ export class Interactable extends EventEmitter {
 
   child(interactable: Interactable) {
     this.interactables.push(interactable);
+    interactable.parent = this;
   }
 
   addPlugin(plugin: PluginResponse) {

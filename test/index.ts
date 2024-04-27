@@ -1,16 +1,18 @@
 import { DrawingContext, Dugtrio } from "..";
 import { draggable } from "../plugins/draggable";
 import { mouseOver } from "../plugins/mouseOver";
+import { pin } from "../plugins/pin";
 import { Interactable } from "../src/Interactable";
 Dugtrio.init();
 
 const window = new Interactable();
 window.draw = (self) => {};
 
-const box = new Interactable();
-box.size = { x: 100, y: 100 };
-box.position = { x: 100, y: 100 };
-box.draw = (self) => {
+const boxHead = new Interactable();
+boxHead.size = { x: 100, y: 25 };
+boxHead.position = { x: 100, y: 100 };
+
+boxHead.draw = (self) => {
   if (self.properties.mouseOver) {
     DrawingContext.color({ red: 255, blue: 0, alpha: 255, green: 255 });
   } else {
@@ -27,10 +29,25 @@ box.draw = (self) => {
     size: self.size,
   });
 };
-box.addPlugin(mouseOver());
-box.addPlugin(draggable());
 
-window.child(box);
+boxHead.addPlugin(mouseOver());
+boxHead.addPlugin(draggable());
+
+const box = new Interactable();
+box.size = { x: 100, y: 100 };
+box.position = { x: 100, y: 100 };
+
+box.draw = (self) => {
+  DrawingContext.rect({
+    position: self.position,
+    fill: false,
+    size: self.size,
+  });
+};
+boxHead.child(box);
+box.addPlugin(pin());
+
+window.child(boxHead);
 
 setInterval(() => {
   window.render();
