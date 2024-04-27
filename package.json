@@ -1,0 +1,14 @@
+{
+  "name": "dugtrio-node",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^20.12.7",
+    "busrt": "^0.2.7",
+    "tsx": "^4.7.3"
+  },
+  "scripts": {
+    "dev": "tsx watch index.ts"
+  }
+}
