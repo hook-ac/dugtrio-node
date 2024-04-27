@@ -2,9 +2,9 @@ use hudhook::{hooks::dx11::ImguiDx11Hooks, *};
 use image::io::Reader as ImageReader;
 use image::RgbaImage;
 use imgui::{Context, Image, TextureId};
-use serde_json::Value;
-use std::fs::File;
-use std::io::{BufRead, BufReader, Cursor};
+use serde_json::{json, Value};
+use std::fs::{File, OpenOptions};
+use std::io::{BufRead, BufReader, BufWriter, Cursor, Write};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
@@ -15,6 +15,7 @@ pub struct DugtrioRenderLoop {
     image_bytes: Vec<u8>,
     image_id: Option<TextureId>,
     text_value: Arc<Mutex<String>>,
+    ret_value_clone: Arc<Mutex<String>>,
 }
 
 impl DugtrioRenderLoop {
@@ -24,8 +25,15 @@ impl DugtrioRenderLoop {
         let text_value = Arc::new(Mutex::new(String::new()));
         let text_value_clone = Arc::clone(&text_value);
 
+        let ret_value = Arc::new(Mutex::new(String::new()));
+        let ret_value_clone = Arc::clone(&ret_value);
+
         thread::spawn(move || {
             read_pipe_messages(text_value_clone);
+        });
+
+        thread::spawn(move || {
+            write_pipe_messages(ret_value);
         });
 
         DugtrioRenderLoop {
@@ -34,12 +42,14 @@ impl DugtrioRenderLoop {
             image,
             image_id: None,
             text_value,
+            ret_value_clone,
         }
     }
 }
 
 impl ImguiRenderLoop for DugtrioRenderLoop {
     fn initialize<'a>(&'a mut self, _ctx: &mut Context, mut loader: TextureLoader<'a>) {
+        hudhook::alloc_console();
         self.image_id = load_texture(&mut loader, &self.image_bytes, &self.image);
     }
 
@@ -60,6 +70,15 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
         if self.block_messages {
             draw_cursor(ui, self.image_id, &self.image);
         }
+
+        let mut pload = self.ret_value_clone.lock().unwrap();
+        let response = json!({
+            "mousePosition": ui.io().mouse_pos,
+            "mouseDown": ui.io().mouse_down,
+            "windowSize":  ui.io().display_size
+        });
+
+        *pload = response.to_string();
 
         {
             toggle_block_messages(ui, &mut self.block_messages);
@@ -107,7 +126,48 @@ fn read_pipe_messages(text_value: Arc<Mutex<String>>) {
         }
     }
 }
+fn write_pipe_messages(text_value: Arc<Mutex<String>>) {
+    let pipe_path = r"\\.\pipe\discord_ipc";
 
+    loop {
+        // Attempt to open the pipe
+        let pipe = match OpenOptions::new().write(true).open(&pipe_path) {
+            Ok(pipe) => pipe,
+            Err(e) => {
+                eprintln!("Failed to open pipe: {}", e);
+                thread::sleep(Duration::from_secs(1)); // Retry after a delay
+                continue; // Try to open the pipe again
+            }
+        };
+
+        let mut writer = BufWriter::new(pipe);
+
+        loop {
+            let text = match text_value.lock() {
+                Ok(lock) => lock.clone(),
+                Err(e) => {
+                    eprintln!("Failed to lock mutex: {}", e);
+                    break; // Exit the inner loop if we can't acquire the lock
+                }
+            };
+
+            if let Err(e) = writeln!(writer, "{}", text) {
+                eprintln!("Failed to write to pipe: {}", e);
+                if e.kind() == std::io::ErrorKind::BrokenPipe {
+                    break; // Exit the inner loop if the pipe is broken
+                }
+            } else {
+                if let Err(e) = writer.flush() {
+                    eprintln!("Failed to flush to pipe: {}", e);
+                    if e.kind() == std::io::ErrorKind::BrokenPipe {
+                        break; // Exit the inner loop if the pipe is broken
+                    }
+                }
+            }
+            thread::sleep(Duration::from_millis(16)); // Adjust timing as necessary
+        }
+    }
+}
 fn draw_commands(text: &str, drawlist: &mut imgui::DrawListMut) {
     let v: Value = serde_json::from_str(text).unwrap();
     let mut thickness = 1.0;

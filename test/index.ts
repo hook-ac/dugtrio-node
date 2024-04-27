@@ -1,23 +1,24 @@
 import { DrawingContext, Dugtrio } from "..";
-
+import { Interactable } from "../src/Interactable";
 Dugtrio.init();
 
+const window = new Interactable();
+window.draw = (self) => {};
+
+const box = new Interactable();
+box.size = { x: 100, y: 100 };
+box.position = { x: 100, y: 100 };
+box.draw = (self) => {
+  DrawingContext.rect({
+    position: self.position,
+    fill: false,
+    size: self.size,
+  });
+};
+
+window.child(box);
+
 setInterval(() => {
-  DrawingContext.circle({
-    position: { x: 100, y: 150 },
-    fill: true,
-    radius: 45,
-  });
-  DrawingContext.color({
-    red: 0,
-    green: 0,
-    blue: 0,
-    alpha: 255,
-  });
-  DrawingContext.circle({
-    position: { x: 130, y: 150 },
-    fill: true,
-    radius: 45,
-  });
+  window.render();
   Dugtrio.draw();
 }, 4);
