@@ -164,7 +164,7 @@ fn write_pipe_messages(text_value: Arc<Mutex<String>>) {
                     }
                 }
             }
-            thread::sleep(Duration::from_millis(16)); // Adjust timing as necessary
+            thread::sleep(Duration::from_millis(4)); // Adjust timing as necessary
         }
     }
 }
