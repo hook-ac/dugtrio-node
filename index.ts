@@ -1,7 +1,8 @@
 import net from "net";
 
 export class Dugtrio {
-  private static connection: net.Socket;
+  private static connection: net.Socket | null = null;
+
   public static init() {
     const PIPE_NAME = "discord_ipc";
     const PIPE_PATH = `\\\\.\\pipe\\${PIPE_NAME}`;
@@ -11,6 +12,7 @@ export class Dugtrio {
       this.connection = socket;
 
       socket.on("end", () => {
+        this.connection = null;
         console.log("Dugtrio disconnected");
       });
     });
@@ -21,6 +23,10 @@ export class Dugtrio {
   }
 
   public static send(message: any) {
+    if (!this.connection) return;
+
     this.connection.write(`${message}\n`);
   }
 }
+
+Dugtrio.init();
