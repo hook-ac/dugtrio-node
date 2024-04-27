@@ -9,6 +9,7 @@
     "tsx": "^4.7.3"
   },
   "scripts": {
-    "dev": "tsx watch index.ts"
+    "dev": "tsx watch index.ts",
+    "test": "tsx watch test/index.ts"
   }
 }
