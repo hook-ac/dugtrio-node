@@ -10,6 +10,7 @@ export interface PluginResponse {
 export class Interactable extends EventEmitter {
   private interactables: Interactable[] = [];
   private plugIns: ((self: Interactable) => void)[] = [];
+  private purged: boolean = false;
 
   parent: Interactable | null = null;
   properties: Record<string, any> = {};
@@ -26,6 +27,13 @@ export class Interactable extends EventEmitter {
   addPlugin(plugin: PluginResponse) {
     plugin.setup(this);
     this.plugIns.push(plugin.draw);
+  }
+
+  purge() {
+    this.purged = true;
+    for (const interactable of this.interactables) {
+      interactable.purge();
+    }
   }
 
   render() {
