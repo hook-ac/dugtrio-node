@@ -19,9 +19,10 @@ boxHead.draw = (self) => {
     DrawingContext.color({ red: 255, blue: 0, alpha: 255, green: 0 });
   }
   DrawingContext.fontSize({ value: 99 });
+  DrawingContext.fontAlign({ value: 1 });
   DrawingContext.text({
     position: self.position,
-    text: "hello",
+    text: "hellos",
   });
 
   DrawingContext.rect({

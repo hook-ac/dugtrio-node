@@ -20,6 +20,7 @@ pub struct DugtrioRenderLoop {
 
 static mut FONTS: Vec<(usize, FontId)> = Vec::new();
 static mut FONT_SIZE: usize = 16;
+static mut ALIGNMENT: usize = 0;
 
 impl DugtrioRenderLoop {
     pub fn new() -> Self {
@@ -196,6 +197,9 @@ fn draw_commands(text: &str, ui: &mut imgui::Ui) {
             Some("thickness") => thickness = command["value"].as_f64().unwrap() as f32,
             Some("rounding") => rounding = command["value"].as_f64().unwrap() as f32,
             Some("fontSize") => unsafe { FONT_SIZE = command["value"].as_f64().unwrap() as usize },
+            Some("fontAlign") => {
+                unsafe { ALIGNMENT = command["value"].as_f64().unwrap() as usize };
+            }
             Some("color") => {
                 color = [
                     command["red"].as_f64().unwrap() as f32,
@@ -213,7 +217,11 @@ fn draw_commands(text: &str, ui: &mut imgui::Ui) {
             Some("text") => {
                 let pop_font: imgui::FontStackToken<'_> =
                     ui.push_font(unsafe { FONTS.get(FONT_SIZE).unwrap().1 });
-                draw_text(command, &mut drawlist, color);
+
+                let size =
+                    ui.calc_text_size_with_opts(command["text"].as_str().unwrap(), true, 0.0);
+
+                draw_text(command, &mut drawlist, color, size);
                 pop_font.pop()
             }
             Some("line") => {
@@ -294,13 +302,20 @@ fn draw_line(command: &Value, drawlist: &mut imgui::DrawListMut, thickness: f32,
         .build();
 }
 
-fn draw_text(command: &Value, drawlist: &mut imgui::DrawListMut, color: [f32; 4]) {
+fn draw_text(command: &Value, drawlist: &mut imgui::DrawListMut, color: [f32; 4], size: [f32; 2]) {
+    let mut offset = [0.0, 0.0];
+    if (unsafe { ALIGNMENT } == 1) {
+        offset[0] = -size[0];
+    }
+    if (unsafe { ALIGNMENT } == 2) {
+        offset[0] = -size[0] / 2.0;
+    }
     let position = command["position"].as_object().unwrap();
 
     drawlist.add_text(
         [
-            position["x"].as_f64().unwrap() as f32,
-            position["y"].as_f64().unwrap() as f32,
+            position["x"].as_f64().unwrap() as f32 + offset[0],
+            position["y"].as_f64().unwrap() as f32 + offset[1],
         ],
         imgui::ImColor32::from(color),
         command["text"].as_str().unwrap(),

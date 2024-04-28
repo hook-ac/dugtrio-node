@@ -12,6 +12,7 @@ export type Command =
   | ColorCommand
   | LineCommand
   | TextCommand
+  | FontAlignCommand
   | FontSizeCommand;
 
 export interface GenericCommand {}
@@ -25,6 +26,11 @@ export interface CircleCommand extends GenericCommand {
 
 export interface FontSizeCommand extends GenericCommand {
   type: "fontSize";
+  value: number;
+}
+
+export interface FontAlignCommand extends GenericCommand {
+  type: "fontAlign";
   value: number;
 }
 
