@@ -29,6 +29,8 @@ export class Interactable extends EventEmitter {
   }
 
   render() {
+    if (!Dugtrio.isMenuActive()) return;
+
     for (const plugin of this.plugIns) {
       plugin(this);
     }

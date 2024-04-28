@@ -39,6 +39,7 @@ export interface WindowData {
   mouseDown: [boolean, boolean, boolean, boolean, boolean];
   mousePosition: [number, number];
   windowSize: [number, number];
+  menuActive: boolean;
 }
 
 export class Dugtrio {
@@ -124,6 +125,13 @@ export class Dugtrio {
       return false;
     }
     return this.windowData.mouseDown[button];
+  }
+
+  public static isMenuActive(): boolean {
+    if (!this.windowData) {
+      return false;
+    }
+    return this.windowData.menuActive;
   }
 
   public static draw() {

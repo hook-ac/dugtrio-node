@@ -75,7 +75,8 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
         let response = json!({
             "mousePosition": ui.io().mouse_pos,
             "mouseDown": ui.io().mouse_down,
-            "windowSize":  ui.io().display_size
+            "windowSize": ui.io().display_size,
+            "menuActive": self.block_messages
         });
 
         *pload = response.to_string();

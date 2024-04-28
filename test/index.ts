@@ -38,6 +38,8 @@ box.size = { x: 100, y: 100 };
 box.position = { x: 100, y: 100 };
 
 box.draw = (self) => {
+  DrawingContext.color({ red: 255, blue: 0, alpha: 255, green: 0 });
+
   DrawingContext.rect({
     position: self.position,
     fill: false,
