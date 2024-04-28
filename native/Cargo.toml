@@ -8,6 +8,10 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 name = "discordoverlay"
 
+[features]
+dx11 = []
+opengl = []
+
 [dependencies]
 busrt = { version = "0.4.10", features = ["rpc", "ipc"] }
 hudhook = "0.6.5"

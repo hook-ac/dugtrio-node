@@ -12,6 +12,7 @@ import {
   ThicknessCommand,
 } from "./src/drawlist";
 import { Vector2 } from "./src/math";
+const { spawn } = require("child_process");
 
 export class DrawingContext {
   static rect(payload: Omit<RectCommand, "type">) {
@@ -55,7 +56,23 @@ export class Dugtrio {
   private static windowData: WindowData;
   static currentFrame: Payload = { commands: [] };
 
-  public static init() {
+  public static init(type: "dx11" | "opengl") {
+    setTimeout(() => {
+      if (!this.connection) {
+        console.log("Injecting...");
+        // Define the path to the executable
+        const exePath = `./prebuilt/inject_${type}.exe`;
+
+        // Spawn the process detached
+        const child = spawn(exePath, {
+          detached: true,
+          stdio: "ignore",
+        });
+
+        // Unreference the process so the parent can exit independently of the child
+        child.unref();
+      }
+    }, 5000);
     // SEND PIPE
     const PIPE_NAME = "discord_ipc";
     const PIPE_PATH = `\\\\.\\pipe\\${PIPE_NAME}`;
@@ -155,4 +172,6 @@ export class Dugtrio {
     if (!this.connection) return;
     this.connection.write(`${JSON.stringify(message)}\n`);
   }
+
+  private static inject() {}
 }

@@ -3,7 +3,7 @@ import { draggable } from "../plugins/draggable";
 import { mouseOver } from "../plugins/mouseOver";
 import { pin } from "../plugins/pin";
 import { Interactable } from "../src/Interactable";
-Dugtrio.init();
+Dugtrio.init("opengl");
 
 const window = new Interactable();
 window.draw = (self) => {};

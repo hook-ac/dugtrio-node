@@ -1,4 +1,4 @@
-use hudhook::{hooks::dx11::ImguiDx11Hooks, *};
+use hudhook::{hooks::dx11::ImguiDx11Hooks, hooks::opengl3::ImguiOpenGl3Hooks, *};
 use image::io::Reader as ImageReader;
 use image::RgbaImage;
 use imgui::{Context, FontId, FontSource, Image, TextureId};
@@ -351,4 +351,8 @@ fn toggle_block_messages(ui: &mut imgui::Ui, block_messages: &mut bool) {
     }
 }
 
+#[cfg(feature = "dx11")]
 hudhook!(ImguiDx11Hooks, DugtrioRenderLoop::new());
+
+#[cfg(feature = "opengl")]
+hudhook!(ImguiOpenGl3Hooks, DugtrioRenderLoop::new());

@@ -10,6 +10,13 @@
   },
   "scripts": {
     "dev": "tsx watch index.ts",
+    "buildBinaries": "bun build.ts",
     "test": "tsx watch test/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
   }
 }
