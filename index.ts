@@ -2,6 +2,7 @@ import net from "net";
 import {
   CircleCommand,
   ColorCommand,
+  FontSizeCommand,
   LineCommand,
   Payload,
   RectCommand,
@@ -32,6 +33,9 @@ export class DrawingContext {
   }
   static text(payload: Omit<TextCommand, "type">) {
     Dugtrio.currentFrame.commands.push({ ...payload, type: "text" });
+  }
+  static fontSize(payload: Omit<FontSizeCommand, "type">) {
+    Dugtrio.currentFrame.commands.push({ ...payload, type: "fontSize" });
   }
 }
 

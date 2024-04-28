@@ -1,7 +1,7 @@
 use hudhook::{hooks::dx11::ImguiDx11Hooks, *};
 use image::io::Reader as ImageReader;
 use image::RgbaImage;
-use imgui::{Context, Image, TextureId};
+use imgui::{Context, FontId, FontSource, Image, TextureId};
 use serde_json::{json, Value};
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, BufWriter, Cursor, Write};
@@ -18,10 +18,14 @@ pub struct DugtrioRenderLoop {
     ret_value_clone: Arc<Mutex<String>>,
 }
 
+static mut FONTS: Vec<(usize, FontId)> = Vec::new();
+static mut FONT_SIZE: usize = 16;
+
 impl DugtrioRenderLoop {
     pub fn new() -> Self {
         let image = load_image();
         let image_bytes = image.as_raw().to_vec();
+
         let text_value = Arc::new(Mutex::new(String::new()));
         let text_value_clone = Arc::clone(&text_value);
 
@@ -48,8 +52,19 @@ impl DugtrioRenderLoop {
 }
 
 impl ImguiRenderLoop for DugtrioRenderLoop {
-    fn initialize<'a>(&'a mut self, _ctx: &mut Context, mut loader: TextureLoader<'a>) {
-        hudhook::alloc_console();
+    fn initialize<'a>(&'a mut self, context: &mut Context, mut loader: TextureLoader<'a>) {
+        let _ = hudhook::alloc_console();
+        unsafe {
+            for i in 1..=100 {
+                let font_id = context.fonts().add_font(&[FontSource::TtfData {
+                    data: include_bytes!("../../poppins.ttf"),
+                    size_pixels: i as f32,
+                    config: None,
+                }]);
+                FONTS.push((i, font_id));
+            }
+        };
+
         self.image_id = load_texture(&mut loader, &self.image_bytes, &self.image);
     }
 
@@ -61,8 +76,7 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
             let text = self.text_value.lock().unwrap().clone();
             if !text.is_empty() {
                 {
-                    let mut drawlist = ui.get_background_draw_list();
-                    draw_commands(&text, &mut drawlist);
+                    draw_commands(&text, ui);
                 }
             }
         }
@@ -169,18 +183,19 @@ fn write_pipe_messages(text_value: Arc<Mutex<String>>) {
         }
     }
 }
-fn draw_commands(text: &str, drawlist: &mut imgui::DrawListMut) {
+fn draw_commands(text: &str, ui: &mut imgui::Ui) {
     let v: Value = serde_json::from_str(text).unwrap();
     let mut thickness = 1.0;
     let mut rounding = 0.0;
     let mut color = [255.0, 0.0, 0.0, 1.0];
-
+    let mut drawlist = ui.get_background_draw_list();
     for command in v["commands"].as_array().unwrap() {
         let r#type = command["type"].as_str();
 
         match r#type {
             Some("thickness") => thickness = command["value"].as_f64().unwrap() as f32,
             Some("rounding") => rounding = command["value"].as_f64().unwrap() as f32,
+            Some("fontSize") => unsafe { FONT_SIZE = command["value"].as_f64().unwrap() as usize },
             Some("color") => {
                 color = [
                     command["red"].as_f64().unwrap() as f32,
@@ -190,16 +205,19 @@ fn draw_commands(text: &str, drawlist: &mut imgui::DrawListMut) {
                 ];
             }
             Some("rect") => {
-                draw_rect(command, drawlist, thickness, rounding, color);
+                draw_rect(command, &mut drawlist, thickness, rounding, color);
             }
             Some("circle") => {
-                draw_circle(command, drawlist, thickness, color);
+                draw_circle(command, &mut drawlist, thickness, color);
             }
             Some("text") => {
-                draw_text(command, drawlist, color);
+                let pop_font: imgui::FontStackToken<'_> =
+                    ui.push_font(unsafe { FONTS.get(FONT_SIZE).unwrap().1 });
+                draw_text(command, &mut drawlist, color);
+                pop_font.pop()
             }
             Some("line") => {
-                draw_line(command, drawlist, thickness, color);
+                draw_line(command, &mut drawlist, thickness, color);
             }
             _ => panic!("Unknown command type"),
         }

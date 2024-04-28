@@ -11,7 +11,8 @@ export type Command =
   | RoundingCommand
   | ColorCommand
   | LineCommand
-  | TextCommand;
+  | TextCommand
+  | FontSizeCommand;
 
 export interface GenericCommand {}
 
@@ -20,6 +21,11 @@ export interface CircleCommand extends GenericCommand {
   position: Vector2;
   radius: number;
   fill: boolean;
+}
+
+export interface FontSizeCommand extends GenericCommand {
+  type: "fontSize";
+  value: number;
 }
 
 export interface TextCommand extends GenericCommand {

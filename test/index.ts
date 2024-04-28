@@ -18,6 +18,7 @@ boxHead.draw = (self) => {
   } else {
     DrawingContext.color({ red: 255, blue: 0, alpha: 255, green: 0 });
   }
+  DrawingContext.fontSize({ value: 99 });
   DrawingContext.text({
     position: self.position,
     text: "hello",
