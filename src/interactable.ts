@@ -1,5 +1,5 @@
 import EventEmitter from "events";
-import { Vector2 } from "./math";
+import type { Vector2 } from "./math";
 import { Dugtrio } from "..";
 
 export interface PluginResponse {

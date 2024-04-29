@@ -1,4 +1,4 @@
-import { Vector2 } from "./math";
+import type { Vector2 } from "./math";
 
 export interface Payload {
   commands: Command[];
