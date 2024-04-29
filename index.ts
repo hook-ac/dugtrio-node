@@ -56,12 +56,12 @@ export class Dugtrio {
   private static windowData: WindowData;
   static currentFrame: Payload = { commands: [] };
 
-  public static init(type: "dx11" | "opengl") {
+  public static init(type: "dx11" | "opengl", arch: "x64" | "x32") {
     setTimeout(() => {
       if (!this.connection) {
         console.log("Injecting...");
         // Define the path to the executable
-        const exePath = `./prebuilt/inject_${type}.exe`;
+        const exePath = `./prebuilt/${arch}/inject_${type}.exe`;
 
         // Spawn the process detached
         const child = spawn(exePath, {
@@ -172,6 +172,4 @@ export class Dugtrio {
     if (!this.connection) return;
     this.connection.write(`${JSON.stringify(message)}\n`);
   }
-
-  private static inject() {}
 }

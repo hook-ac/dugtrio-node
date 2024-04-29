@@ -476,9 +476,9 @@ checksum = "d231dfb89cfffdbc30e7fc41579ed6066ad03abda9e567ccafae602b97ec5024"
 [[package]]
 name = "hudhook"
 version = "0.6.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4410f9d0387433b18c28a8a8b716f98778c3c6ae8604a707a66af418f1746254"
+source = "git+https://github.com/ruby3141/hudhook.git?rev=b73a868712bb7ab1d65edc40644475b1226b689d#b73a868712bb7ab1d65edc40644475b1226b689d"
 dependencies = [
+ "bitflags 2.5.0",
  "cc",
  "gl_generator",
  "imgui",

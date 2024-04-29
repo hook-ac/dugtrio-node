@@ -1,3 +1,4 @@
+use hudhook::ImguiRenderLoop;
 use hudhook::{hooks::dx11::ImguiDx11Hooks, hooks::opengl3::ImguiOpenGl3Hooks, *};
 use image::io::Reader as ImageReader;
 use image::RgbaImage;
@@ -11,6 +12,7 @@ use std::time::Duration;
 
 pub struct DugtrioRenderLoop {
     block_messages: bool,
+    lpress: bool,
     image: RgbaImage,
     image_bytes: Vec<u8>,
     image_id: Option<TextureId>,
@@ -42,7 +44,8 @@ impl DugtrioRenderLoop {
         });
 
         DugtrioRenderLoop {
-            block_messages: false,
+            lpress: false,
+            block_messages: true,
             image_bytes,
             image,
             image_id: None,
@@ -53,7 +56,7 @@ impl DugtrioRenderLoop {
 }
 
 impl ImguiRenderLoop for DugtrioRenderLoop {
-    fn initialize<'a>(&'a mut self, context: &mut Context, mut loader: TextureLoader<'a>) {
+    fn initialize<'a>(&'a mut self, context: &mut Context, loader: &'a mut dyn RenderContext) {
         let _ = hudhook::alloc_console();
         unsafe {
             for i in 1..=100 {
@@ -66,12 +69,16 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
             }
         };
 
-        self.image_id = load_texture(&mut loader, &self.image_bytes, &self.image);
+        self.image_id = load_texture(loader, &self.image_bytes, &self.image);
+    }
+    fn set_message_filter(&self, _io: &imgui::Io) -> MessageFilter {
+        if self.block_messages {
+            MessageFilter::InputAll
+        } else {
+            MessageFilter::empty()
+        }
     }
 
-    fn should_block_messages(&self, _io: &imgui::Io) -> bool {
-        self.block_messages
-    }
     fn render(&mut self, ui: &mut imgui::Ui) {
         if self.block_messages {
             let text = self.text_value.lock().unwrap().clone();
@@ -97,8 +104,24 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
         *pload = response.to_string();
 
         {
-            toggle_block_messages(ui, &mut self.block_messages);
+            toggle_block_messages(ui, &mut self.block_messages, &mut self.lpress);
         }
+    }
+
+    fn before_render<'a>(
+        &'a mut self,
+        _ctx: &mut Context,
+        _render_context: &'a mut dyn RenderContext,
+    ) {
+    }
+
+    fn on_wnd_proc(
+        &self,
+        _hwnd: windows::Win32::Foundation::HWND,
+        _umsg: u32,
+        _wparam: windows::Win32::Foundation::WPARAM,
+        _lparam: windows::Win32::Foundation::LPARAM,
+    ) {
     }
 }
 
@@ -112,11 +135,13 @@ fn load_image() -> RgbaImage {
 }
 
 fn load_texture<'a>(
-    loader: &mut TextureLoader<'a>,
+    loader: &'a mut dyn RenderContext,
     image_bytes: &'a [u8],
     image: &RgbaImage,
 ) -> Option<TextureId> {
-    loader(image_bytes, image.width() as _, image.height() as _).ok()
+    loader
+        .load_texture(image_bytes, image.width() as _, image.height() as _)
+        .ok()
 }
 
 fn read_pipe_messages(text_value: Arc<Mutex<String>>) {
@@ -345,9 +370,14 @@ fn draw_cursor(ui: &mut imgui::Ui, image_id: Option<TextureId>, image: &RgbaImag
     rounding.pop();
 }
 
-fn toggle_block_messages(ui: &mut imgui::Ui, block_messages: &mut bool) {
-    if ui.is_key_released(imgui::Key::Home) {
+fn toggle_block_messages(ui: &mut imgui::Ui, block_messages: &mut bool, lpress: &mut bool) {
+    let cpressed = ui.io().mouse_down[2];
+
+    if cpressed && !*lpress {
         *block_messages = !*block_messages;
+        *lpress = true;
+    } else if !cpressed {
+        *lpress = false;
     }
 }
 

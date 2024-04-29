@@ -14,7 +14,7 @@ opengl = []
 
 [dependencies]
 busrt = { version = "0.4.10", features = ["rpc", "ipc"] }
-hudhook = "0.6.5"
+hudhook = { git = "https://github.com/ruby3141/hudhook.git", rev = "b73a868712bb7ab1d65edc40644475b1226b689d" }
 image = "0.24.8"
 imgui = "0.11"
 serde_json = "1.0.116"

@@ -3,7 +3,7 @@ import { draggable } from "../plugins/draggable";
 import { mouseOver } from "../plugins/mouseOver";
 import { pin } from "../plugins/pin";
 import { Interactable } from "../src/Interactable";
-Dugtrio.init("opengl");
+Dugtrio.init("opengl", "x32");
 
 const window = new Interactable();
 window.draw = (self) => {};
@@ -54,6 +54,7 @@ box.addPlugin(pin());
 window.child(boxHead);
 
 setInterval(() => {
+  // DrawingContext.block({ value: true });
   window.render();
   Dugtrio.draw();
 }, 4);
