@@ -1,5 +1,5 @@
 import net from "net";
-import {
+import type {
   CircleCommand,
   ColorCommand,
   FontAlignCommand,
@@ -11,7 +11,7 @@ import {
   TextCommand,
   ThicknessCommand,
 } from "./src/drawlist";
-import { Vector2 } from "./src/math";
+import type { Vector2 } from "./src/math";
 const { spawn } = require("child_process");
 
 export class DrawingContext {
@@ -61,7 +61,7 @@ export class Dugtrio {
       if (!this.connection) {
         console.log("Injecting...");
         // Define the path to the executable
-        const exePath = `./prebuilt/${arch}/inject_${type}.exe`;
+        const exePath = __dirname + `/prebuilt/${arch}/inject_${type}.exe`;
 
         // Spawn the process detached
         const child = spawn(exePath, {
