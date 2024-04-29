@@ -57,7 +57,6 @@ impl DugtrioRenderLoop {
 
 impl ImguiRenderLoop for DugtrioRenderLoop {
     fn initialize<'a>(&'a mut self, context: &mut Context, loader: &'a mut dyn RenderContext) {
-        let _ = hudhook::alloc_console();
         unsafe {
             for i in 1..=100 {
                 let font_id = context.fonts().add_font(&[FontSource::TtfData {
@@ -80,12 +79,10 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
     }
 
     fn render(&mut self, ui: &mut imgui::Ui) {
-        if self.block_messages {
-            let text = self.text_value.lock().unwrap().clone();
-            if !text.is_empty() {
-                {
-                    draw_commands(&text, ui);
-                }
+        let text = self.text_value.lock().unwrap().clone();
+        if !text.is_empty() {
+            {
+                draw_commands(&text, ui);
             }
         }
 
