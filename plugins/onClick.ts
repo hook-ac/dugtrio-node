@@ -17,12 +17,14 @@ export function onClick(data: {
       const lastPressing = self.properties.lastPressing;
       const isPressing = Dugtrio.isMouseDown(0);
 
-      if (isOver && lastPressing !== isPressing) {
+      if (lastPressing !== isPressing) {
         self.properties.lastPressing = isPressing;
-        if (isPressing) {
-          data.onPress(self);
-        } else {
-          data.onRelease(self);
+        if (isOver) {
+          if (isPressing) {
+            data.onPress(self);
+          } else {
+            data.onRelease(self);
+          }
         }
       }
     },
