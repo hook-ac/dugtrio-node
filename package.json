@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "tsx watch index.ts",
     "buildBinaries": "bun build.ts",
-    "test": "tsx watch test/index.ts"
+    "test": "yarn buildBinaries && tsx watch test/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"

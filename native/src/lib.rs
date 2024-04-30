@@ -4,9 +4,11 @@ use image::io::Reader as ImageReader;
 use image::RgbaImage;
 use imgui::{Context, FontId, FontSource, Image, TextureId};
 use serde_json::{json, Value};
+use std::collections::HashMap;
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, BufWriter, Cursor, Write};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
 
@@ -16,6 +18,7 @@ pub struct DugtrioRenderLoop {
     image: RgbaImage,
     image_bytes: Vec<u8>,
     image_id: Option<TextureId>,
+    textures: HashMap<String, TextureId>,
     text_value: Arc<Mutex<String>>,
     ret_value_clone: Arc<Mutex<String>>,
 }
@@ -51,6 +54,7 @@ impl DugtrioRenderLoop {
             image_id: None,
             text_value,
             ret_value_clone,
+            textures: HashMap::new(),
         }
     }
 }
@@ -67,7 +71,6 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
                 FONTS.push((i, font_id));
             }
         };
-
         self.image_id = load_texture(loader, &self.image_bytes, &self.image);
     }
     fn set_message_filter(&self, _io: &imgui::Io) -> MessageFilter {
@@ -82,7 +85,7 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
         let text = self.text_value.lock().unwrap().clone();
         if !text.is_empty() {
             {
-                draw_commands(&text, ui);
+                draw_commands(&text, ui, self.textures.clone());
             }
         }
 
@@ -105,11 +108,31 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
         }
     }
 
-    fn before_render<'a>(
-        &'a mut self,
-        _ctx: &mut Context,
-        _render_context: &'a mut dyn RenderContext,
-    ) {
+    fn before_render<'a>(&'a mut self, _ctx: &mut Context, loader: &'a mut dyn RenderContext) {
+        let text = self.text_value.lock().unwrap().clone();
+        if (!text.is_empty() && text.contains("$textureLoad$")) {
+            {
+                let v: Value = serde_json::from_str(&text).unwrap();
+                let commands: Vec<Value> = v["commands"].as_array().unwrap().to_vec();
+
+                for command in commands {
+                    let r#type = command["type"].as_str();
+
+                    match r#type {
+                        Some("loadTexture") => {
+                            let texture_name = command["textureName"].as_str().unwrap().to_string();
+                            let data = command["data"].as_str().unwrap().to_string();
+
+                            if !self.textures.contains_key(&texture_name) {
+                                let texid = load_texture_from_base64(loader, &data).unwrap();
+                                self.textures.insert(texture_name, texid);
+                            }
+                        }
+                        _ => (),
+                    }
+                }
+            }
+        }
     }
 
     fn on_wnd_proc(
@@ -138,6 +161,17 @@ fn load_texture<'a>(
 ) -> Option<TextureId> {
     loader
         .load_texture(image_bytes, image.width() as _, image.height() as _)
+        .ok()
+}
+
+fn load_texture_from_base64<'a>(
+    loader: &'a mut dyn RenderContext,
+    base64_string: &str,
+) -> Option<TextureId> {
+    let image_bytes = base64::decode(base64_string).ok()?;
+    let image = image::load_from_memory(&image_bytes).ok()?.to_rgba8();
+    loader
+        .load_texture(&image, image.width() as _, image.height() as _)
         .ok()
 }
 
@@ -206,7 +240,7 @@ fn write_pipe_messages(text_value: Arc<Mutex<String>>) {
         }
     }
 }
-fn draw_commands(text: &str, ui: &mut imgui::Ui) {
+fn draw_commands(text: &str, ui: &mut imgui::Ui, textures: HashMap<String, TextureId>) {
     let v: Value = serde_json::from_str(text).unwrap();
     let mut thickness = 1.0;
     let mut rounding = 0.0;
@@ -236,6 +270,27 @@ fn draw_commands(text: &str, ui: &mut imgui::Ui) {
             Some("circle") => {
                 draw_circle(command, &mut drawlist, thickness, color);
             }
+            Some("texture") => {
+                let position = command["position"].as_object().unwrap();
+                let size = command["size"].as_object().unwrap();
+                let _ = drawlist
+                    .add_image(
+                        *textures
+                            .get(&command["textureId"].as_str().unwrap().to_string())
+                            .unwrap(),
+                        [
+                            position["x"].as_f64().unwrap() as f32,
+                            position["y"].as_f64().unwrap() as f32,
+                        ],
+                        [
+                            position["x"].as_f64().unwrap() as f32
+                                + size["x"].as_f64().unwrap() as f32,
+                            position["y"].as_f64().unwrap() as f32
+                                + size["y"].as_f64().unwrap() as f32,
+                        ],
+                    )
+                    .build();
+            }
             Some("text") => {
                 let pop_font: imgui::FontStackToken<'_> =
                     ui.push_font(unsafe { FONTS.get(FONT_SIZE).unwrap().1 });
@@ -249,7 +304,7 @@ fn draw_commands(text: &str, ui: &mut imgui::Ui) {
             Some("line") => {
                 draw_line(command, &mut drawlist, thickness, color);
             }
-            _ => panic!("Unknown command type"),
+            _ => (),
         }
     }
 }

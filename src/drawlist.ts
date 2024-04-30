@@ -13,6 +13,8 @@ export type Command =
   | LineCommand
   | TextCommand
   | FontAlignCommand
+  | LoadTextureCommand
+  | TextureCommand
   | FontSizeCommand;
 
 export interface GenericCommand {}
@@ -22,6 +24,20 @@ export interface CircleCommand extends GenericCommand {
   position: Vector2;
   radius: number;
   fill: boolean;
+}
+
+export interface LoadTextureCommand extends GenericCommand {
+  keyword: "$textureLoad$";
+  type: "loadTexture";
+  textureName: string;
+  data: string;
+}
+
+export interface TextureCommand extends GenericCommand {
+  type: "texture";
+  position: Vector2;
+  size: Vector2;
+  textureId: string;
 }
 
 export interface FontSizeCommand extends GenericCommand {

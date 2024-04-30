@@ -5,10 +5,12 @@ import type {
   FontAlignCommand,
   FontSizeCommand,
   LineCommand,
+  LoadTextureCommand,
   Payload,
   RectCommand,
   RoundingCommand,
   TextCommand,
+  TextureCommand,
   ThicknessCommand,
 } from "./src/drawlist";
 import type { Vector2 } from "./src/math";
@@ -42,6 +44,18 @@ export class DrawingContext {
   static fontAlign(payload: Omit<FontAlignCommand, "type">) {
     Dugtrio.currentFrame.commands.push({ ...payload, type: "fontAlign" });
   }
+  static texture(payload: Omit<TextureCommand, "type">) {
+    Dugtrio.currentFrame.commands.push({ ...payload, type: "texture" });
+  }
+  static loadTexture(
+    payload: Omit<Omit<LoadTextureCommand, "type">, "keyword">
+  ) {
+    Dugtrio.currentFrame.commands.push({
+      ...payload,
+      type: "loadTexture",
+      keyword: "$textureLoad$",
+    });
+  }
 }
 
 export interface WindowData {
@@ -54,7 +68,12 @@ export interface WindowData {
 export class Dugtrio {
   private static connection: net.Socket | null = null;
   private static windowData: WindowData;
+  private static onReadyCallback = () => {};
   static currentFrame: Payload = { commands: [] };
+
+  public static onReady(callback: () => void) {
+    this.onReadyCallback = callback;
+  }
 
   public static init(type: "dx11" | "opengl", arch: "x64" | "x32") {
     setTimeout(() => {
@@ -80,6 +99,7 @@ export class Dugtrio {
     const server = net.createServer((socket) => {
       console.log("Dugtrio Connected");
       this.connection = socket;
+      this.onReadyCallback();
       socket.on("end", () => {
         this.connection = null;
         console.log("Dugtrio disconnected");
