@@ -15,6 +15,7 @@ export type Command =
   | FontAlignCommand
   | LoadTextureCommand
   | TextureCommand
+  | TriangleCommand
   | FontSizeCommand;
 
 export interface GenericCommand {}
@@ -23,6 +24,14 @@ export interface CircleCommand extends GenericCommand {
   type: "circle";
   position: Vector2;
   radius: number;
+  fill: boolean;
+}
+
+export interface TriangleCommand extends GenericCommand {
+  type: "triangle";
+  p1: Vector2;
+  p2: Vector2;
+  p3: Vector2;
   fill: boolean;
 }
 

@@ -12,6 +12,7 @@ import type {
   TextCommand,
   TextureCommand,
   ThicknessCommand,
+  TriangleCommand,
 } from "./src/drawlist";
 import type { Vector2 } from "./src/math";
 const { spawn } = require("child_process");
@@ -46,6 +47,9 @@ export class DrawingContext {
   }
   static texture(payload: Omit<TextureCommand, "type">) {
     Dugtrio.currentFrame.commands.push({ ...payload, type: "texture" });
+  }
+  static triangle(payload: Omit<TriangleCommand, "type">) {
+    Dugtrio.currentFrame.commands.push({ ...payload, type: "triangle" });
   }
   static loadTexture(
     payload: Omit<Omit<LoadTextureCommand, "type">, "keyword">

@@ -267,6 +267,9 @@ fn draw_commands(text: &str, ui: &mut imgui::Ui, textures: HashMap<String, Textu
             Some("rect") => {
                 draw_rect(command, &mut drawlist, thickness, rounding, color);
             }
+            Some("triangle") => {
+                draw_triangle(command, &mut drawlist, thickness, color);
+            }
             Some("circle") => {
                 draw_circle(command, &mut drawlist, thickness, color);
             }
@@ -333,6 +336,37 @@ fn draw_rect(
         )
         .thickness(thickness)
         .rounding(rounding)
+        .filled(command["fill"].as_bool().unwrap())
+        .build();
+}
+
+fn draw_triangle(
+    command: &Value,
+    drawlist: &mut imgui::DrawListMut,
+    thickness: f32,
+    color: [f32; 4],
+) {
+    let p1 = command["p1"].as_object().unwrap();
+    let p2 = command["p2"].as_object().unwrap();
+    let p3 = command["p3"].as_object().unwrap();
+
+    drawlist
+        .add_triangle(
+            [
+                p1["x"].as_f64().unwrap() as f32,
+                p1["y"].as_f64().unwrap() as f32,
+            ],
+            [
+                p2["x"].as_f64().unwrap() as f32,
+                p2["y"].as_f64().unwrap() as f32,
+            ],
+            [
+                p3["x"].as_f64().unwrap() as f32,
+                p3["y"].as_f64().unwrap() as f32,
+            ],
+            imgui::ImColor32::from(color),
+        )
+        .thickness(thickness)
         .filled(command["fill"].as_bool().unwrap())
         .build();
 }
