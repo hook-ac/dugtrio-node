@@ -65,7 +65,9 @@ export class DrawingContext {
 export interface WindowData {
   mouseDown: [boolean, boolean, boolean, boolean, boolean];
   mousePosition: [number, number];
+  displaySize: [number, number];
   windowSize: [number, number];
+  windowPosition: [number, number];
   menuActive: boolean;
 }
 
@@ -74,6 +76,7 @@ export class Dugtrio {
   private static windowData: WindowData;
   private static onReadyCallback = () => {};
   static currentFrame: Payload = { commands: [] };
+  static ready = false;
 
   public static onReady(callback: () => void) {
     this.onReadyCallback = callback;
@@ -104,6 +107,7 @@ export class Dugtrio {
       console.log("Dugtrio Connected");
       this.connection = socket;
       this.onReadyCallback();
+      this.ready = true;
       socket.on("end", () => {
         this.connection = null;
         console.log("Dugtrio disconnected");
@@ -147,6 +151,8 @@ export class Dugtrio {
     server_out.listen(PIPE_PATH_OUT, () => {
       console.log(`Dugtrio receiver is ready!`);
     });
+
+    global.dugtrio = Dugtrio;
   }
 
   public static getCursorPosition(): Vector2 {
@@ -159,6 +165,16 @@ export class Dugtrio {
     };
   }
 
+  public static getDisplaySize(): Vector2 {
+    if (!this.windowData) {
+      return { x: 0, y: 0 };
+    }
+    return {
+      x: this.windowData.displaySize[0],
+      y: this.windowData.displaySize[1],
+    };
+  }
+
   public static getWindowSize(): Vector2 {
     if (!this.windowData) {
       return { x: 0, y: 0 };
@@ -166,6 +182,16 @@ export class Dugtrio {
     return {
       x: this.windowData.windowSize[0],
       y: this.windowData.windowSize[1],
+    };
+  }
+
+  public static getWindowPosition(): Vector2 {
+    if (!this.windowData) {
+      return { x: 0, y: 0 };
+    }
+    return {
+      x: this.windowData.windowPosition[0],
+      y: this.windowData.windowPosition[1],
     };
   }
 
