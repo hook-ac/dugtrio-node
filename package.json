@@ -6,6 +6,7 @@
   "dependencies": {
     "@types/node": "^20.12.7",
     "busrt": "^0.2.7",
+    "mmap-node": "^1.0.2",
     "tsx": "^4.7.3"
   },
   "scripts": {
