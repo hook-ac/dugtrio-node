@@ -91,30 +91,30 @@ export class Dugtrio {
 
         // Tested manual mapping only for this case, will gradually rollout for other
         // arches and types.
-        if (type == "dx11" && arch == "x64") {
-          const handle = openHandle("osu!");
-          let mapResult = mmap(
-            handle,
-            readFileSync(
-              __dirname + `/prebuilt/${arch}/discordoverlay_${type}.dll`
-            )
-          );
-          console.log(`MAPRESULT:`, mapResult);
-          closeHandle(handle);
-        } else {
-          // Fallback
-          // Define the path to the executable
-          const exePath = __dirname + `/prebuilt/${arch}/inject_${type}.exe`;
+        // if (type == "dx11" && arch == "x64") {
+        //   const handle = openHandle("osu!");
+        //   let mapResult = mmap(
+        //     handle,
+        //     readFileSync(
+        //       __dirname + `/prebuilt/${arch}/discordoverlay_${type}.dll`
+        //     )
+        //   );
+        //   console.log(`MAPRESULT:`, mapResult);
+        //   closeHandle(handle);
+        // } else {
+        // Fallback
+        // Define the path to the executable
+        const exePath = __dirname + `/prebuilt/${arch}/inject_${type}.exe`;
 
-          // Spawn the process detached
-          const child = spawn(exePath, {
-            detached: true,
-            stdio: "ignore",
-          });
+        // Spawn the process detached
+        const child = spawn(exePath, {
+          detached: true,
+          stdio: "ignore",
+        });
 
-          // Unreference the process so the parent can exit independently of the child
-          child.unref();
-        }
+        // Unreference the process so the parent can exit independently of the child
+        child.unref();
+        // }
       }
     }, 5000);
     // SEND PIPE
