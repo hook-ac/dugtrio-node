@@ -1,12 +1,12 @@
 {
   "name": "dugtrio-node",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "main": "index.ts",
   "license": "MIT",
   "dependencies": {
     "@types/node": "^20.12.7",
     "busrt": "^0.2.7",
-    "mmap-node": "^1.0.2",
+    "mmap-node": "^1.0.3",
     "tsx": "^4.7.3"
   },
   "scripts": {
