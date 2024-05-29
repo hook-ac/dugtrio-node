@@ -184,7 +184,7 @@ export class Dugtrio {
   }
 
   public static getDisplaySize(): Vector2 {
-    if (!this.windowData) {
+    if (!this.windowData || !this.windowData.displaySize) {
       return { x: 0, y: 0 };
     }
     return {
@@ -194,7 +194,7 @@ export class Dugtrio {
   }
 
   public static getWindowSize(): Vector2 {
-    if (!this.windowData) {
+    if (!this.windowData || !this.windowData.windowSize) {
       return { x: 0, y: 0 };
     }
     return {
@@ -204,7 +204,7 @@ export class Dugtrio {
   }
 
   public static getWindowPosition(): Vector2 {
-    if (!this.windowData) {
+    if (!this.windowData || !this.windowData.windowPosition) {
       return { x: 0, y: 0 };
     }
     return {
