@@ -11,6 +11,8 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
+use windows::Win32::Foundation::{HWND, RECT};
+use windows::Win32::UI::WindowsAndMessaging::GetWindowRect;
 
 pub struct DugtrioRenderLoop {
     block_messages: bool,
@@ -26,6 +28,7 @@ pub struct DugtrioRenderLoop {
 static mut FONTS: Vec<(usize, FontId)> = Vec::new();
 static mut FONT_SIZE: usize = 16;
 static mut ALIGNMENT: usize = 0;
+static mut W_HWND: Option<HWND> = None;
 
 impl DugtrioRenderLoop {
     pub fn new() -> Self {
@@ -94,11 +97,23 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
         }
 
         let mut pload = self.ret_value_clone.lock().unwrap();
+        let mut window_position: RECT = RECT::default();
+        if (unsafe { W_HWND.is_some() }) {
+            unsafe {
+                let _ = GetWindowRect(unsafe { W_HWND.unwrap() }, &mut window_position);
+            };
+        }
+
         let response = json!({
             "mousePosition": ui.io().mouse_pos,
             "mouseDown": ui.io().mouse_down,
             "displaySize": ui.io().display_size,
-            "windowPosition": ui.window_pos(),
+            "windowPosition": json!({
+                "x": window_position.left,
+                "y": window_position.top,
+                "w": window_position.right - window_position.left,
+                "h": window_position.bottom - window_position.top
+            }),
             "menuActive": self.block_messages
         });
         *pload = response.to_string();
@@ -137,11 +152,12 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
 
     fn on_wnd_proc(
         &self,
-        _hwnd: windows::Win32::Foundation::HWND,
+        hwnd: windows::Win32::Foundation::HWND,
         _umsg: u32,
         _wparam: windows::Win32::Foundation::WPARAM,
         _lparam: windows::Win32::Foundation::LPARAM,
     ) {
+        unsafe { W_HWND = Some(hwnd) };
     }
 }
 

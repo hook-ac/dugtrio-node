@@ -68,8 +68,7 @@ export interface WindowData {
   mouseDown: [boolean, boolean, boolean, boolean, boolean];
   mousePosition: [number, number];
   displaySize: [number, number];
-  windowSize: [number, number];
-  windowPosition: [number, number];
+  windowPosition: { x: number; y: number; w: number; h: number };
   menuActive: boolean;
 }
 
@@ -194,12 +193,12 @@ export class Dugtrio {
   }
 
   public static getWindowSize(): Vector2 {
-    if (!this.windowData || !this.windowData.windowSize) {
+    if (!this.windowData || !this.windowData.windowPosition) {
       return { x: 0, y: 0 };
     }
     return {
-      x: this.windowData.windowSize[0],
-      y: this.windowData.windowSize[1],
+      x: this.windowData.windowPosition.w,
+      y: this.windowData.windowPosition.h,
     };
   }
 
@@ -208,8 +207,8 @@ export class Dugtrio {
       return { x: 0, y: 0 };
     }
     return {
-      x: this.windowData.windowPosition[0],
-      y: this.windowData.windowPosition[1],
+      x: this.windowData.windowPosition.x,
+      y: this.windowData.windowPosition.y,
     };
   }
 

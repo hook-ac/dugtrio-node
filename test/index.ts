@@ -41,11 +41,11 @@ box.position = { x: 100, y: 100 };
 
 box.draw = (self) => {
   DrawingContext.color({ red: 255, blue: 0, alpha: 255, green: 0 });
-  DrawingContext.texture({
-    textureId: "33",
-    position: self.position,
-    size: { x: 200, y: 200 },
-  });
+  // DrawingContext.texture({
+  //   textureId: "33",
+  //   position: self.position,
+  //   size: { x: 200, y: 200 },
+  // });
   DrawingContext.rect({
     position: self.position,
     fill: false,
