@@ -35,9 +35,9 @@ fn main() {
     println!("Using DLL path: {:?}", cur_dll);
 
     // Dummy implementation of process injection (replace with actual code as needed)
-    if let Ok(process) = Process::by_name("osu!.exe") {
+    if let Ok(process) = Process::by_name("SoundSpacePlus.exe") {
         process.inject(cur_dll).unwrap();
     } else {
-        println!("Failed to find or inject into process 'osu!.exe'");
+        println!("Failed to find or inject into process 'SSP.exe'");
     }
 }

@@ -15,7 +15,6 @@ import type {
   TriangleCommand,
 } from "./src/drawlist";
 import type { Vector2 } from "./src/math";
-import { closeHandle, mmap, openHandle } from "mmap-node";
 import { readFileSync } from "fs";
 const { spawn } = require("child_process");
 
@@ -88,32 +87,18 @@ export class Dugtrio {
       if (!this.connection) {
         console.log("Injecting...");
 
-        // Tested manual mapping only for this case, will gradually rollout for other
-        // arches and types.
-        if (type == "dx11" && arch == "x64") {
-          const handle = openHandle(windowTitle);
-          let mapResult = mmap(
-            handle,
-            readFileSync(
-              __dirname + `/prebuilt/${arch}/discordoverlay_${type}.dll`
-            )
-          );
-          console.log(`MAPRESULT:`, mapResult);
-          closeHandle(handle);
-        } else {
-          // Fallback
-          // Define the path to the executable
-          const exePath = __dirname + `/prebuilt/${arch}/inject_${type}.exe`;
+        // Fallback
+        // Define the path to the executable
+        const exePath = __dirname + `/prebuilt/${arch}/inject_${type}.exe`;
 
-          // Spawn the process detached
-          const child = spawn(exePath, {
-            detached: true,
-            stdio: "ignore",
-          });
+        // Spawn the process detached
+        const child = spawn(exePath, {
+          detached: true,
+          stdio: "ignore",
+        });
 
-          // Unreference the process so the parent can exit independently of the child
-          child.unref();
-        }
+        // Unreference the process so the parent can exit independently of the child
+        child.unref();
       }
     }, 5000);
     // SEND PIPE

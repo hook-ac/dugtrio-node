@@ -1,12 +1,11 @@
 {
-  "name": "dugtrio-node",
+  "name": "dugtrio-node-rhythia",
   "version": "1.0.20",
   "main": "index.ts",
   "license": "MIT",
   "dependencies": {
     "@types/node": "^20.12.7",
     "busrt": "^0.2.7",
-    "mmap-node": "^1.0.3",
     "tsx": "^4.7.3"
   },
   "scripts": {
