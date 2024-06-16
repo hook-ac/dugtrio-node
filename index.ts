@@ -83,7 +83,7 @@ export class Dugtrio {
     this.onReadyCallback = callback;
   }
 
-  public static init(type: "dx11" | "opengl", arch: "x64" | "x32") {
+  public static init(type: "dx11" | "opengl", arch: "x64" | "x32", windowTitle: string = "osu!") {
     setTimeout(() => {
       if (!this.connection) {
         console.log("Injecting...");
@@ -91,7 +91,7 @@ export class Dugtrio {
         // Tested manual mapping only for this case, will gradually rollout for other
         // arches and types.
         if (type == "dx11" && arch == "x64") {
-          const handle = openHandle("osu!");
+          const handle = openHandle(windowTitle);
           let mapResult = mmap(
             handle,
             readFileSync(
