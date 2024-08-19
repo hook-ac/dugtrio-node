@@ -77,13 +77,13 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
         };
         self.image_id = load_texture(loader, &self.image_bytes, &self.image);
     }
-    fn set_message_filter(&self, _io: &imgui::Io) -> MessageFilter {
-        if self.block_messages {
-            MessageFilter::InputAll
-        } else {
-            MessageFilter::empty()
-        }
-    }
+    // fn set_message_filter(&self, _io: &imgui::Io) -> MessageFilter {
+    //     if self.block_messages {
+    //         MessageFilter::InputAll
+    //     } else {
+    //         MessageFilter::empty()
+    //     }
+    // }
 
     fn render(&mut self, ui: &mut imgui::Ui) {
         let text = self.text_value.lock().unwrap().clone();
@@ -93,9 +93,9 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
             }
         }
 
-        if self.block_messages {
-            draw_cursor(ui, self.image_id, &self.image);
-        }
+        // if self.block_messages {
+        //     draw_cursor(ui, self.image_id, &self.image);
+        // }
 
         let mut pload = self.ret_value_clone.lock().unwrap();
         let mut window_position: RECT = RECT::default();
@@ -119,9 +119,9 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
         });
         *pload = response.to_string();
 
-        {
-            toggle_block_messages(ui, &mut self.block_messages, &mut self.lpress);
-        }
+        // {
+        //     toggle_block_messages(ui, &mut self.block_messages, &mut self.lpress);
+        // }
     }
 
     fn before_render<'a>(&'a mut self, _ctx: &mut Context, loader: &'a mut dyn RenderContext) {
@@ -489,5 +489,3 @@ hudhook!(ImguiDx12Hooks, DugtrioRenderLoop::new());
 
 #[cfg(feature = "opengl")]
 hudhook!(ImguiOpenGl3Hooks, DugtrioRenderLoop::new());
-
-
