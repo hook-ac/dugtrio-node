@@ -77,24 +77,35 @@ impl ImguiRenderLoop for DugtrioRenderLoop {
         };
         self.image_id = load_texture(loader, &self.image_bytes, &self.image);
     }
-    // fn set_message_filter(&self, _io: &imgui::Io) -> MessageFilter {
-    //     if self.block_messages {
-    //         MessageFilter::InputAll
-    //     } else {
-    //         MessageFilter::empty()
-    //     }
-    // }
+    fn set_message_filter(&self, _io: &imgui::Io) -> MessageFilter {
+        if self.block_messages {
+            MessageFilter::InputAll
+        } else {
+            MessageFilter::empty()
+        }
+    }
 
     fn render(&mut self, ui: &mut imgui::Ui) {
         let text = self.text_value.lock().unwrap().clone();
         if !text.is_empty() {
-            {
-                draw_commands(&text, ui, self.textures.clone());
+            if let Ok(v) = serde_json::from_str::<Value>(&text) {
+                if let Some(commands) = v.get("commands").and_then(|c| c.as_array()) {
+                    for command in commands {
+                        if let Some("toggleBlockMessages") =
+                            command.get("type").and_then(|t| t.as_str())
+                        {
+                            if let Some(value) = command.get("value").and_then(|v| v.as_bool()) {
+                                self.block_messages = value;
+                            }
+                        }
+                    }
+                }
             }
+            draw_commands(&text, ui, self.textures.clone());
         }
 
         // if self.block_messages {
-        //     draw_cursor(ui, self.image_id, &self.image);
+        // draw_cursor(ui, self.image_id, &self.image);
         // }
 
         let mut pload = self.ret_value_clone.lock().unwrap();

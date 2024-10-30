@@ -12,6 +12,7 @@ import type {
   TextCommand,
   TextureCommand,
   ThicknessCommand,
+  ToggleBlockMessagesCommand,
   TriangleCommand,
 } from "./src/drawlist";
 import type { Vector2 } from "./src/math";
@@ -39,6 +40,14 @@ export class DrawingContext {
   }
   static text(payload: Omit<TextCommand, "type">) {
     Dugtrio.currentFrame.commands.push({ ...payload, type: "text" });
+  }
+  static toggleBlockMessages(
+    payload: Omit<ToggleBlockMessagesCommand, "type">
+  ) {
+    Dugtrio.currentFrame.commands.push({
+      ...payload,
+      type: "toggleBlockMessages",
+    });
   }
   static fontSize(payload: Omit<FontSizeCommand, "type">) {
     Dugtrio.currentFrame.commands.push({ ...payload, type: "fontSize" });
@@ -82,7 +91,11 @@ export class Dugtrio {
     this.onReadyCallback = callback;
   }
 
-  public static init(type: "dx11" | "opengl", arch: "x64" | "x32", windowTitle: string = "osu!") {
+  public static init(
+    type: "dx11" | "opengl",
+    arch: "x64" | "x32",
+    windowTitle: string = "osu!"
+  ) {
     setTimeout(() => {
       if (!this.connection) {
         console.log("Injecting...");

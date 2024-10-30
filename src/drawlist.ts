@@ -16,6 +16,7 @@ export type Command =
   | LoadTextureCommand
   | TextureCommand
   | TriangleCommand
+  | ToggleBlockMessagesCommand
   | FontSizeCommand;
 
 export interface GenericCommand {}
@@ -63,6 +64,11 @@ export interface TextCommand extends GenericCommand {
   type: "text";
   position: Vector2;
   text: string;
+}
+
+export interface ToggleBlockMessagesCommand extends GenericCommand {
+  type: "toggleBlockMessages";
+  value: boolean;
 }
 
 export interface RectCommand extends GenericCommand {
